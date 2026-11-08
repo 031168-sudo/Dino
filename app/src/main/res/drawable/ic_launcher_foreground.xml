@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- два дома -->
+    <path android:fillColor="#C9634B" android:pathData="M26,58h22v34h-22z" />
+    <path android:fillColor="#7A8FA8" android:pathData="M60,50h24v42h-24z" />
+    <path android:fillColor="#FFE3A0" android:pathData="M30,64h5v6h-5zM39,64h5v6h-5zM30,76h5v6h-5zM39,76h5v6h-5zM64,56h6v6h-6zM74,56h6v6h-6zM64,68h6v6h-6zM74,68h6v6h-6z" />
+    <!-- бегун в прыжке над переулком -->
+    <path android:fillColor="#FF5A3C" android:pathData="M50,34h8v6h-8z" />
+    <path android:fillColor="#F0C49C" android:pathData="M51,40h6v6h-6z" />
+    <path android:fillColor="#17A39A" android:pathData="M49,46h10v9h-10z" />
+    <path android:fillColor="#2B2D52" android:pathData="M45,52l5,4l-4,4l-4,-3z M58,54l6,-2l1,5l-6,2z" />
+</vector>
