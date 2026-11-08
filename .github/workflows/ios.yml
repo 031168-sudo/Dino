@@ -1,0 +1,59 @@
+name: iOS → TestFlight
+
+on:
+  push:
+    branches: [main]
+    paths: ['ios/**', 'app/src/main/assets/**', '.github/workflows/ios.yml']
+  workflow_dispatch:
+
+jobs:
+  testflight:
+    runs-on: macos-15
+    env:
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      IOS_BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID || 'ru.makarov.roofs' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check secrets
+        id: check
+        run: |
+          if [ -z "$APPLE_TEAM_ID" ] || [ -z "$ASC_KEY_ID" ] || [ -z "$ASC_ISSUER_ID" ] || [ -z "$ASC_KEY_P8" ]; then
+            echo "::warning::Нет секретов APPLE_TEAM_ID / ASC_KEY_ID / ASC_ISSUER_ID / ASC_KEY_P8 — сборка под iOS пропущена"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare
+        if: steps.check.outputs.ok == 'true'
+        run: |
+          brew install xcodegen
+          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/AuthKey.p8"
+          cd ios
+          sed -i '' "s/TEAM_ID_PLACEHOLDER/$APPLE_TEAM_ID/" ExportOptions.plist
+          xcodegen generate
+
+      - name: Archive
+        if: steps.check.outputs.ok == 'true'
+        run: |
+          cd ios
+          xcodebuild archive -project Roofs.xcodeproj -scheme Roofs -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Roofs.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            CURRENT_PROJECT_VERSION=${GITHUB_RUN_NUMBER}
+
+      - name: Upload to TestFlight
+        if: steps.check.outputs.ok == 'true'
+        run: |
+          cd ios
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Roofs.xcarchive" \
+            -exportOptionsPlist ExportOptions.plist -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID"

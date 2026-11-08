@@ -10,4 +10,8 @@
 
 Игра — страница `app/src/main/assets/index.html` на three.js (лежит рядом, работает без интернета), показанная во весь экран через WebView. Прогресс хранится на телефоне.
 
-Сборка: GitHub Actions на каждый push в `main`, APK — в Releases.
+Сборка:
+- Android — GitHub Actions на каждый push в `main`, APK в Releases.
+- iOS — `ios/` (WKWebView, те же файлы игры), workflow «iOS → TestFlight» собирает и отправляет сборку в TestFlight.
+  Нужны секреты репозитория `APPLE_TEAM_ID`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8` (текст ключа App Store Connect API),
+  по желанию переменная `IOS_BUNDLE_ID` (по умолчанию `ru.makarov.roofs`). В App Store Connect должно быть создано приложение с этим Bundle ID.
